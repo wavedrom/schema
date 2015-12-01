@@ -1,0 +1,27 @@
+{
+  "name": "wavedrom-schema",
+  "version": "0.1.0",
+  "description": "JSON schema for WaveDrom",
+  "main": "wavedrom.json",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wavedrom/wavedrom-schema.git"
+  },
+  "keywords": [
+    "WaveDrom"
+  ],
+  "author": "Aliaksei Capyzhenka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wavedrom/wavedrom-schema/issues"
+  },
+  "homepage": "https://github.com/wavedrom/wavedrom-schema#readme",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4",
+    "z-schema": "^3.16.0"
+  }
+}
