@@ -1,1 +1,70 @@
-{}
+{
+    "id": "http://wavedrom.com/schemas#",
+    "definitions": {
+        "waveLane": {
+            "id": "#waveLane",
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "wave": { "type": "string" },
+                "data": {
+                    "description": "strings for data chunks",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        { "type": "string" }
+                    ]
+                }
+            }
+        },
+        "waveGroup": {
+            "id": "#waveGroup",
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    { "type": "string" },
+                    { "$ref": "waveLane" },
+                    { "$ref": "waveGroup" }
+                ]
+            }
+        },
+        "textSpan": {
+            "id": "#textSpan",
+            "oneOf": [
+                { "type": "string" },
+                { "type": "array" }
+            ]
+        },
+        "textNode" : {
+            "id": "#textNode",
+            "description": "head / foot note text of JSONML",
+            "type": "object",
+            "properties": {
+                "text": { "$ref": "textSpan" },
+                "tick": { "type": "number" },
+                "tock": { "type": "number" }
+            }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "signal": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    { "$ref": "waveLane" },
+                    { "$ref": "waveGroup" }
+                ]
+            }
+        },
+        "head": { "$ref": "textNode" },
+        "foot": { "$ref": "textNode" },
+        "edge": {
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "config": { "type": "object" }
+    }
+}

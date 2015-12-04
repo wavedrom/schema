@@ -1,7 +1,7 @@
 'use strict';
 
-var wd = require('../wavedrom.json'),
-    zschema = require('z-schema');
+var waveDromSchema = require('../wavedrom.json'),
+    ZSchema = require('z-schema');
 
 var dat = {
     s1: { signal: [{ name: "Alfa", wave: "01.zx=ud.23.45" }] },
@@ -146,9 +146,17 @@ var dat = {
     })(5, 16)
 }
 
+var validator = new ZSchema();
 
 describe('basic', function () {
-    it('is schema', function () {
-        
+    Object.keys(dat).forEach(function (name) {
+        it(name, function (done) {
+            validator.validate(dat[name], waveDromSchema, function (err, valid) {
+                if (err) {
+                    throw err;
+                }
+                done();
+            });
+        });
     });
 });
