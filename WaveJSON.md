@@ -1,7 +1,7 @@
 The following set of structures used by WaveDrom rendering engine to describe timing diagrams.
 The format based on [JSON](http://json.org) syntax with some reserved keywords and structural limitations.
 
-See [WaveDrom Tutorial](http://wavedrom.googlecode.com/svn/trunk/tutorial.html) for examples.
+See [WaveDrom Tutorial](http://wavedrom.com/tutorial.html) for examples.
 
 ### ``signal``
 
@@ -147,4 +147,4 @@ Special syntax can be used in the ``first word``. First ``character`` is the ``f
 number >= 1 defines horizontal scale of timing diagram.
 
 
-See [WaveDrom Tutorial](http://wavedrom.googlecode.com/svn/trunk/tutorial.html) for more information.
+See [WaveDrom Tutorial](http://wavedrom.com/tutorial.html) for more information.
