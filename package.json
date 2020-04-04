@@ -3,10 +3,11 @@
   "version": "0.3.0",
   "description": "JSON schema for WaveDrom",
   "main": "lib/",
-  "unpkg": "wavedrom.json",
+  "unpkg": "waveschema.js",
   "scripts": {
     "test": "eslint lib/ test/ && nyc -r=text -r=lcov mocha",
-    "prepare": "node bin/prepare.js"
+    "browserify": "browserify --standalone waveschema lib/index.js > waveschema.js",
+    "prepare": "node bin/prepare.js && npm run browserify"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,8 @@
   "files": [
     "lib",
     "*.md",
-    "wavedrom.json"
+    "waveschema.js",
+    "waveschema.json"
   ],
   "author": "Aliaksei Capyzhenka",
   "license": "MIT",
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@drom/eslint-config": "0.10.0",
+    "browserify": "^16.2.2",
     "ajv": "^6.12.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.11",
