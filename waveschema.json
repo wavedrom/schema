@@ -83,6 +83,9 @@
     },
     "signal": {
       "type": "object",
+      "required": [
+        "signal"
+      ],
       "properties": {
         "signal": {
           "type": "array",
@@ -122,6 +125,9 @@
     },
     "assign": {
       "type": "object",
+      "required": [
+        "assign"
+      ],
       "properties": {
         "assign": {
           "type": "array",
@@ -133,6 +139,9 @@
     },
     "reg": {
       "type": "object",
+      "required": [
+        "reg"
+      ],
       "properties": {
         "reg": {
           "type": "array",
@@ -180,99 +189,13 @@
   "any": {
     "oneOf": [
       {
-        "type": "object",
-        "properties": {
-          "signal": {
-            "type": "array",
-            "items": {
-              "oneOf": [
-                {
-                  "$ref": "defs#/waveLane"
-                },
-                {
-                  "$ref": "defs#/waveGroup"
-                }
-              ]
-            }
-          },
-          "head": {
-            "$ref": "defs#/textNode"
-          },
-          "foot": {
-            "$ref": "defs#/textNode"
-          },
-          "edge": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "config": {
-            "type": "object",
-            "properties": {
-              "hscale": {
-                "type": "number",
-                "minimum": 1
-              }
-            }
-          }
-        }
+        "$ref": "defs#/signal"
       },
       {
-        "type": "object",
-        "properties": {
-          "assign": {
-            "type": "array",
-            "items": {
-              "type": "array"
-            }
-          }
-        }
+        "$ref": "defs#/assign"
       },
       {
-        "type": "object",
-        "properties": {
-          "reg": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "bits": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "name": {
-                  "type": "string"
-                },
-                "attr": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  ]
-                },
-                "type": {
-                  "type": "integer",
-                  "minimum": 0
-                }
-              }
-            }
-          },
-          "config": {
-            "type": "object",
-            "properties": {
-              "hspace": {
-                "type": "number"
-              }
-            }
-          }
-        }
+        "$ref": "defs#/reg"
       }
     ]
   }
