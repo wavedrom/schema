@@ -202,7 +202,7 @@ const dat = {
     ],
     head: {
       text: 'WaveDrom example',
-      tick: 0,
+      tick: 0
     },
     foot: {
       text: 'Figure 100',
