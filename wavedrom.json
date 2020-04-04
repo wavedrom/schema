@@ -1,70 +1,279 @@
 {
-    "id": "http://wavedrom.com/schemas#",
-    "definitions": {
-        "waveLane": {
-            "id": "#waveLane",
-            "type": "object",
-            "properties": {
-                "name": { "type": "string" },
-                "wave": { "type": "string" },
-                "data": {
-                    "description": "strings for data chunks",
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": { "type": "string" }
-                        },
-                        { "type": "string" }
-                    ]
-                }
-            }
+  "defs": {
+    "$id": "defs",
+    "textNode": {
+      "type": "object",
+      "description": "head / foot note text of JSONML",
+      "properties": {
+        "text": {
+          "$ref": "defs#/textSpan"
         },
-        "waveGroup": {
-            "id": "#waveGroup",
-            "type": "array",
-            "items": {
-                "oneOf": [
-                    { "type": "string" },
-                    { "$ref": "waveLane" },
-                    { "$ref": "waveGroup" }
-                ]
-            }
+        "tick": {
+          "type": "number"
         },
-        "textSpan": {
-            "id": "#textSpan",
-            "oneOf": [
-                { "type": "string" },
-                { "type": "array" }
-            ]
-        },
-        "textNode" : {
-            "id": "#textNode",
-            "description": "head / foot note text of JSONML",
-            "type": "object",
-            "properties": {
-                "text": { "$ref": "textSpan" },
-                "tick": { "type": "number" },
-                "tock": { "type": "number" }
-            }
+        "tock": {
+          "type": "number"
         }
+      }
     },
-    "type": "object",
-    "properties": {
+    "textSpan": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array"
+        }
+      ]
+    },
+    "waveLane": {
+      "type": "object",
+      "title": "Wave lane",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "wave": {
+          "type": "string"
+        },
+        "data": {
+          "description": "strings for data chunks",
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "period": {
+          "type": "integer",
+          "description": "signal period",
+          "minimum": 1
+        },
+        "phase": {
+          "type": "number",
+          "description": "Positive number represents shift into the future. Negative number represents shift into past (delay)."
+        },
+        "node": {
+          "type": "string",
+          "description": "mark wave lane with named nodes"
+        }
+      }
+    },
+    "waveGroup": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "defs#/waveLane"
+          },
+          {
+            "$ref": "defs#/waveGroup"
+          }
+        ]
+      }
+    },
+    "signal": {
+      "type": "object",
+      "properties": {
         "signal": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "defs#/waveLane"
+              },
+              {
+                "$ref": "defs#/waveGroup"
+              }
+            ]
+          }
+        },
+        "head": {
+          "$ref": "defs#/textNode"
+        },
+        "foot": {
+          "$ref": "defs#/textNode"
+        },
+        "edge": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "hscale": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "assign": {
+      "type": "object",
+      "properties": {
+        "assign": {
+          "type": "array",
+          "items": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "reg": {
+      "type": "object",
+      "properties": {
+        "reg": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "bits": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "type": "string"
+              },
+              "attr": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "type": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "hspace": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  },
+  "any": {
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "signal": {
             "type": "array",
             "items": {
-                "oneOf": [
-                    { "$ref": "waveLane" },
-                    { "$ref": "waveGroup" }
-                ]
+              "oneOf": [
+                {
+                  "$ref": "defs#/waveLane"
+                },
+                {
+                  "$ref": "defs#/waveGroup"
+                }
+              ]
             }
-        },
-        "head": { "$ref": "textNode" },
-        "foot": { "$ref": "textNode" },
-        "edge": {
+          },
+          "head": {
+            "$ref": "defs#/textNode"
+          },
+          "foot": {
+            "$ref": "defs#/textNode"
+          },
+          "edge": {
             "type": "array",
-            "items": { "type": "string" }
-        },
-        "config": { "type": "object" }
-    }
+            "items": {
+              "type": "string"
+            }
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "hscale": {
+                "type": "number",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "object",
+        "properties": {
+          "assign": {
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      {
+        "type": "object",
+        "properties": {
+          "reg": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "bits": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "name": {
+                  "type": "string"
+                },
+                "attr": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "type": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "hspace": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
 }

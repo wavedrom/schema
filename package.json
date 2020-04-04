@@ -2,9 +2,11 @@
   "name": "wavedrom-schema",
   "version": "0.2.0",
   "description": "JSON schema for WaveDrom",
-  "main": "wavedrom.json",
+  "main": "lib/",
+  "unpkg": "wavedrom.json",
   "scripts": {
-    "test": "mocha test"
+    "test": "eslint lib/ test/ && nyc -r=text -r=lcov mocha",
+    "prepare": "node bin/prepare.js"
   },
   "repository": {
     "type": "git",
@@ -14,6 +16,7 @@
     "WaveDrom"
   ],
   "files": [
+    "lib",
     "*.md",
     "wavedrom.json"
   ],
@@ -23,9 +26,20 @@
     "url": "https://github.com/wavedrom/wavedrom-schema/issues"
   },
   "homepage": "https://github.com/wavedrom/wavedrom-schema#readme",
+  "engines": {
+    "node": ">=8"
+  },
   "devDependencies": {
-    "chai": "^3.4.1",
-    "mocha": "^2.3.4",
-    "z-schema": "^3.16.0"
+    "@drom/eslint-config": "0.10.0",
+    "ajv": "^6.12.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.11",
+    "eslint": "^6.8.0",
+    "fs-extra": "^8.1.0",
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0"
+  },
+  "eslintConfig": {
+    "extends": "@drom/eslint-config/eslint4/node8"
   }
 }
