@@ -4,6 +4,8 @@
 
 [JSON Schema](https://json-schema.org/) for [WaveDrom](https://wavedrom.com)
 
+https://observablehq.com/@drom/wavedrom-schema
+
 ## NPM Install
 
 ```sh
