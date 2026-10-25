@@ -1,6 +1,6 @@
 {
   "name": "wavedrom-schema",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "JSON schema for WaveDrom",
   "main": "lib/",
   "unpkg": "waveschema.js",
@@ -30,6 +30,10 @@
   "homepage": "https://github.com/wavedrom/wavedrom-schema#readme",
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "bit-field": "^1.10.0",
+    "logidrom": "^1.1.0"
   },
   "devDependencies": {
     "@drom/eslint-config": "^1.0.0",
