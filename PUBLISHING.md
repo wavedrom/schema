@@ -96,8 +96,8 @@ gh pr create --repo SchemaStore/schemastore --base master --head drom:wavedrom-u
 gh pr checks --watch
 ```
 
-Once the initial PR [#6548](https://github.com/SchemaStore/schemastore/pull/6548) is merged, the `CODEOWNERS` entry (`@drom` owns `wavedrom.json` + tests), once checks
-are green you can merge the PR yourself by commenting on it:
+Once the initial PR [#6548](https://github.com/SchemaStore/schemastore/pull/6548) is merged,
+the `CODEOWNERS` entry (`@drom` owns `wavedrom.json` + tests) applies. When checks are green you can merge the PR yourself by commenting on it:
 
 ```
 lgtm
