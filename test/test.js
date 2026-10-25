@@ -368,7 +368,7 @@ const dat = {
 };
 
 describe('basic', function() {
-  const ajv = new Ajv();
+  const ajv = new Ajv({strict: false});
   const validate = ajv
     .addSchema(lib.defs)
     .compile(lib.any);
@@ -380,4 +380,3 @@ describe('basic', function() {
   });
 });
 
-/* eslint-env mocha */

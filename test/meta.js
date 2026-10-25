@@ -6,12 +6,9 @@ const lib = require('../lib/');
 
 describe('meta', () => {
   it('any', async () => {
-    const ajv = new Ajv({schemaId: 'auto'});
-    const validate = ajv
-      .addMetaSchema(meta)
-      .compile({});
+    const ajv = new Ajv({strict: false, meta});
+    const validate = ajv.compile({});
     validate(lib.any);
   });
 });
 
-/* eslint-env mocha */
