@@ -13,6 +13,27 @@ so a schema release does **not** need a SchemaStore PR. Editors fetch the schema
 
 ## 1. Update schema
 
+The schema is assembled from three sources:
+
+| part | owner | file |
+|---|---|---|
+| root, `signal`, text (`textSpan`, `jsonml`) | this repo | `lib/*.js` |
+| `reg` (+ copy of `textSpan`, `jsonml`) | [bit-field](https://github.com/wavedrom/bitfield) | `lib/schema.js` |
+| `assign`, `assignTree` | [logidrom](https://github.com/drom/logidrom) | `lib/schema.js` |
+
+Each package exports a self-contained draft-07 schema (`#/definitions/...` refs);
+`lib/fragment.js` merges it into `defs`. Test "fragments" fails if a package's
+copy of a shared definition (`textSpan`, `jsonml`) differs from this repo.
+
+Change a fragment in its own repo (with its tests), publish it, then bump the dependency here.
+For local development link the sibling checkouts:
+
+```sh
+rm -rf node_modules/bit-field node_modules/logidrom
+ln -s ../../bitfield node_modules/bit-field
+ln -s ../../../drom/logidrom node_modules/logidrom
+```
+
 Edit modules in `lib/`, then:
 
 ```sh
@@ -30,6 +51,9 @@ Rules (from SchemaStore [CONTRIBUTING](https://github.com/SchemaStore/schemastor
 - add positive and negative samples for new features to `dat` / `bad` in `test/test.js`
 
 ## 2. Publish to npm
+
+Release order: bit-field / logidrom first, then `npm i` here (updates `package-lock.json`
+with the new fragment versions), then this package.
 
 ```sh
 npm version minor     # or patch / major; commits + tags
