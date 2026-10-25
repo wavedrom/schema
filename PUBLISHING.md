@@ -2,11 +2,14 @@
 
 `waveschema.json` (generated from `lib/`) is published in two places:
 
-1. npm: [`wavedrom-schema`](https://www.npmjs.com/package/wavedrom-schema)
-2. SchemaStore: <https://www.schemastore.org/wavedrom.json>
-   (copy lives in [SchemaStore/schemastore](https://github.com/SchemaStore/schemastore) as `src/schemas/json/wavedrom.json`)
+| Where | URL | How it gets updated |
+|---|---|---|
+| wavedrom.com (canonical, `$id`) | <https://wavedrom.com/schema/wavedrom.json> | copied into [wavedrom.github.io](https://github.com/wavedrom/wavedrom.github.io) `schema/wavedrom.json` |
+| npm | [`wavedrom-schema`](https://www.npmjs.com/package/wavedrom-schema) (also via unpkg / jsDelivr) | `npm publish` |
 
-SchemaStore does **not** pull from npm. Every schema change has to be sent there as a PR.
+[SchemaStore](https://www.schemastore.org) holds only a catalog entry that points to the wavedrom.com URL
+(PR [#6548](https://github.com/SchemaStore/schemastore/pull/6548)). It has **no copy** of the schema,
+so a schema release does **not** need a SchemaStore PR. Editors fetch the schema from wavedrom.com.
 
 ## 1. Update schema
 
@@ -19,10 +22,11 @@ npm test          # fails if waveschema.json is stale
 
 Rules (from SchemaStore [CONTRIBUTING](https://github.com/SchemaStore/schemastore/blob/master/CONTRIBUTING.md)):
 
-- keep draft-07, `$id: https://www.schemastore.org/wavedrom.json` (set in `lib/standalone.js`)
+- keep draft-07, `$id: https://wavedrom.com/schema/wavedrom.json` (set in `lib/standalone.js`)
 - must compile in Ajv strict mode (covered by `test/test.js`)
 - do not add `additionalProperties: false`; avoid closed enums (use `anyOf: [{enum}, {type: 'string'}]`)
 - don't rename / remove paths under `definitions` (others may `$ref` into them)
+- every change must stay backward compatible: all users get the new schema immediately
 - add positive and negative samples for new features to `dat` / `bad` in `test/test.js`
 
 ## 2. Publish to npm
@@ -33,89 +37,57 @@ git push --follow-tags
 npm publish
 ```
 
-## 3. Publish to SchemaStore
-
-One-time setup (fork `drom/schemastore` already exists).
-Remotes used below: `upstream` = SchemaStore/schemastore, `origin` = drom/schemastore.
+## 3. Publish to wavedrom.com
 
 ```sh
-cd ~/work/github/SchemaStore
-git clone git@github.com:drom/schemastore.git
-cd schemastore
-git remote add upstream https://github.com/SchemaStore/schemastore.git
+cd ~/work/github/wavedrom/wavedrom.github.io
+git pull
+cp ../schema/waveschema.json schema/wavedrom.json
+git add schema/wavedrom.json
+git commit -m "WaveJSON schema vX.Y.Z"
+git push
 ```
 
-(Checkout used for the first PR has different names: `origin` = upstream, `fork` = drom.
-Either rename with `git remote rename`, or substitute names in commands below.)
-
-Each release:
+GitHub Pages deploys within a minute or two. Verify:
 
 ```sh
-cd ~/work/github/SchemaStore/schemastore
-git fetch upstream
-git checkout -B wavedrom-update upstream/master
+curl -s https://wavedrom.com/schema/wavedrom.json | cmp - ../schema/waveschema.json && echo OK
+curl -sI https://wavedrom.com/schema/wavedrom.json | grep -iE 'content-type|access-control'
+# content-type: application/json; charset=utf-8
+# access-control-allow-origin: *
+```
+
+The URL must stay valid **forever**: don't move or rename `schema/wavedrom.json`
+or the site layout.
+
+## Changing `fileMatch` / catalog entry
+
+File patterns live in SchemaStore `src/api/json/catalog.json` (entry `"name": "WaveDrom"`).
+Current patterns: `*.wavedrom.json`, `*.wavedrom.json5`, `*.wavejson`, `*.wd.json`.
+Keep README.md in sync. Changing them needs a SchemaStore PR, reviewed by their maintainers:
+
+```sh
+cd ~/work/github/SchemaStore/schemastore   # remotes: origin = SchemaStore, fork = drom
+git fetch origin
+git checkout -B wavedrom-catalog origin/master
 npm ci
-
-# copy generated schema
-cp ../../wavedrom/schema/waveschema.json src/schemas/json/wavedrom.json
+# edit src/api/json/catalog.json
+./node_modules/.bin/prettier --config .prettierrc.cjs --write src/api/json/catalog.json
+node cli.js check --schema-name=wavedrom.json    # catalog pre-checks
+git commit -am "wavedrom: update fileMatch"
+git push -u fork wavedrom-catalog
+gh pr create --repo SchemaStore/schemastore --base master --head drom:wavedrom-catalog \
+  --title "wavedrom: update fileMatch" --body "..."
 ```
-
-Regenerate test files from `test/test.js` samples (`dat` → positive, `bad` → negative).
-Existing files keep their names; new samples get file name = sample key:
-
-```sh
-cd ~/work/github/wavedrom/schema
-node -e "
-const Module = require('module'), fs = require('fs');
-let code = fs.readFileSync('test/test.js', 'utf8').replace(/describe\([\s\S]*$/, 'module.exports = {dat, bad};');
-const m = new Module('x'); m.paths = module.paths; m.filename = process.cwd() + '/test/x.js';
-m._compile(code, m.filename);
-const {dat, bad} = m.exports;
-const out = '../../SchemaStore/schemastore/src/';
-const pos = {s1:'basic',s2:'clocks',s3:'data',s4:'gaps',s5:'groups',s6:'phase-period',s7a:'config',s7b:'head-foot',s7c:'tspan',s8a:'edge-splines',s8b:'edge-sharp',s9:'gray-code',pw:'piece-wise',ou:'over-under',reg1:'register',assign1:'assign'};
-const neg = {empty:'empty',noSignalArray:'signal-not-array',laneName:'lane-name-type',laneWave:'lane-wave-type',period:'period-zero',edge:'edge-not-array',hscale:'hscale-zero',hbounds:'hbounds-length',regBits:'reg-bits-zero',regType:'reg-type-string',assign:'assign-item-type'};
-for (const k in dat) fs.writeFileSync(out + 'test/wavedrom/' + (pos[k] || k) + '.json', JSON.stringify(dat[k], null, 2) + '\n');
-for (const k in bad) fs.writeFileSync(out + 'negative_test/wavedrom/' + (neg[k] || k) + '.json', JSON.stringify(bad[k], null, 2) + '\n');
-"
-```
-
-Format, validate, PR:
-
-```sh
-cd ~/work/github/SchemaStore/schemastore
-./node_modules/.bin/prettier --config .prettierrc.cjs --ignore-path .gitignore --write \
-  src/schemas/json/wavedrom.json src/test/wavedrom/ src/negative_test/wavedrom/
-node cli.js check --schema-name=wavedrom.json
-
-git add -A
-git commit -m "wavedrom: update to wavedrom-schema vX.Y.Z"
-git push -u origin wavedrom-update
-gh pr create --repo SchemaStore/schemastore --base master --head drom:wavedrom-update \
-  --title "wavedrom: update to vX.Y.Z" \
-  --body "Sync with https://github.com/wavedrom/schema vX.Y.Z"
-gh pr checks --watch
-```
-
-Once the initial PR [#6548](https://github.com/SchemaStore/schemastore/pull/6548) is merged,
-the `CODEOWNERS` entry (`@drom` owns `wavedrom.json` + tests) applies. When checks are green you can merge the PR yourself by commenting on it:
-
-```
-lgtm
-```
-
-The `codeowners-merge` bot merges it. Changes are live at
-<https://www.schemastore.org/wavedrom.json> after SchemaStore's next site deploy (usually minutes).
-
-## Changing `fileMatch`
-
-File patterns live in SchemaStore `src/api/json/catalog.json` (entry `"name": "WaveDrom"`),
-not in this repo. That file is not covered by `CODEOWNERS`, so a PR that touches it
-needs maintainer review. Current patterns:
-`*.wavedrom.json`, `*.wavedrom.json5`, `*.wavejson`, `*.wd.json`.
-Keep README.md in sync.
 
 ## Breaking changes
 
-If schema ever needs incompatible versions, follow SchemaStore
-[multiple versions](https://github.com/SchemaStore/schemastore/blob/master/CONTRIBUTING.md#how-to-add-a-json-schema-with-multiple-versions)
-guide (`wavedrom-1.json`, `wavedrom-2.json` + `versions` in catalog). Never delete `wavedrom.json`.
+All users always get the current `wavedrom.json`. If an incompatible schema is ever needed:
+
+1. Keep `schema/wavedrom.json` valid for old documents, and publish the new one under
+   a new name, e.g. `schema/wavedrom-2.json` (with matching `$id`).
+2. In SchemaStore catalog, add `versions` to the WaveDrom entry
+   (see their [multiple versions](https://github.com/SchemaStore/schemastore/blob/master/CONTRIBUTING.md#how-to-add-a-json-schema-with-multiple-versions)
+   guide) and point `url` to the newest file.
+
+Never delete a published schema file.

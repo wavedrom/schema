@@ -19,12 +19,12 @@ curl https://unpkg.com/wavedrom-schema/waveschema.json
 ```
 
 `waveschema.json` is a self-contained [draft-07](https://json-schema.org/draft-07) schema,
-also published on [SchemaStore](https://www.schemastore.org/wavedrom.json).
+published at <https://wavedrom.com/schema/wavedrom.json> and registered in [SchemaStore](https://www.schemastore.org).
 Editors auto-apply it to `*.wavedrom.json`, `*.wavedrom.json5`, `*.wavejson`, `*.wd.json` files, or reference it explicitly:
 
 ```json
 {
-  "$schema": "https://www.schemastore.org/wavedrom.json",
+  "$schema": "https://wavedrom.com/schema/wavedrom.json",
   "signal": [{"name": "clk", "wave": "p..."}]
 }
 ```

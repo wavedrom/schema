@@ -424,7 +424,7 @@ describe('standalone (strict)', () => {
 
   it('draft-07 + $id', () => {
     expect(standalone.$schema).to.equal('http://json-schema.org/draft-07/schema#');
-    expect(standalone.$id).to.equal('https://www.schemastore.org/wavedrom.json');
+    expect(standalone.$id).to.equal('https://wavedrom.com/schema/wavedrom.json');
   });
   it('waveschema.json up to date', () => {
     expect(require('../waveschema.json')).to.deep.equal(standalone);
