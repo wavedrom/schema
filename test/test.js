@@ -2,6 +2,8 @@
 
 const lib = require('../lib/');
 const Ajv = require('ajv');
+const {expect} = require('chai');
+const standalone = require('../lib/standalone.js');
 
 const dat = {
   s1: {
@@ -364,19 +366,71 @@ const dat = {
         data: data
       }, arr]
     };
-  })(5, 16)
+  })(5, 16),
+  pw: {
+    signal: [{name: 'analog', wave: ['pw', {d: 'm0,0 l1,1'}]}]
+  },
+  ou: {
+    signal: [{name: 'a', wave: '01010', over: '.2.3.', under: '..4..'}],
+    config: {hscale: 2, skin: 'narrow', hbounds: [0, 4], marks: false},
+    head: {text: 'title', tick: 0, every: 2}
+  },
+  reg1: {
+    reg: [
+      {name: 'IPO', bits: 8, attr: 'RO'},
+      {bits: 7},
+      {name: 'BRK', bits: 5, attr: ['RW', 3], type: 4, rotate: -90},
+      {name: 1, bits: 1}
+    ],
+    config: {hspace: 888, lanes: 2, bits: 21, compact: true, fontfamily: 'monospace'}
+  },
+  assign1: {
+    assign: [['out', ['|', ['&', 'a', 'b'], ['~', 'c']]]]
+  }
 };
 
-describe('basic', function() {
+const bad = {
+  empty: {},
+  noSignalArray: {signal: {name: 'a'}},
+  laneName: {signal: [{name: 5, wave: '01'}]},
+  laneWave: {signal: [{wave: 10}]},
+  period: {signal: [{wave: '01', period: 0}]},
+  edge: {signal: [], edge: 'a->b'},
+  hscale: {signal: [], config: {hscale: 0}},
+  hbounds: {signal: [], config: {hbounds: [1]}},
+  regBits: {reg: [{bits: 0}]},
+  regType: {reg: [{bits: 1, type: 'x'}]},
+  assign: {assign: ['out']}
+};
+
+const check = (validate, data, expected) => {
+  const res = validate(data);
+  expect(res, JSON.stringify(validate.errors)).to.equal(expected);
+};
+
+describe('defs + any', () => {
   const ajv = new Ajv({strict: false});
   const validate = ajv
     .addSchema(lib.defs)
     .compile(lib.any);
 
-  Object.keys(dat).forEach(function(name) {
-    it(name, async () => {
-      validate(dat[name]);
-    });
-  });
+  Object.keys(dat).forEach(name => it(name, () => check(validate, dat[name], true)));
+  Object.keys(bad).forEach(name => it('negative ' + name, () => check(validate, bad[name], false)));
 });
+
+describe('standalone (strict)', () => {
+  const ajv = new Ajv({strict: true, allowUnionTypes: true});
+  const validate = ajv.compile(standalone);
+
+  it('draft-07 + $id', () => {
+    expect(standalone.$schema).to.equal('http://json-schema.org/draft-07/schema#');
+    expect(standalone.$id).to.equal('https://www.schemastore.org/wavedrom.json');
+  });
+  it('waveschema.json up to date', () => {
+    expect(require('../waveschema.json')).to.deep.equal(standalone);
+  });
+  Object.keys(dat).forEach(name => it(name, () => check(validate, dat[name], true)));
+  Object.keys(bad).forEach(name => it('negative ' + name, () => check(validate, bad[name], false)));
+});
+
 
